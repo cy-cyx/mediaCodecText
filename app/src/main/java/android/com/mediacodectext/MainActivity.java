@@ -1,8 +1,8 @@
 package android.com.mediacodectext;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.com.mediacodectext.activity.VideoInfoActivity;
 import android.com.mediacodectext.utils.PermissionUtil;
 import android.com.mediacodectext.utils.TextDataManager;
 import android.content.Intent;
@@ -18,8 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Class[] classes = new Class[]{};
-    private String[] names = new String[]{};
+    private Class[] classes = new Class[]{VideoInfoActivity.class};
+    private String[] names = new String[]{"视频信息"};
 
     private RecyclerView mRecyclerView;
 

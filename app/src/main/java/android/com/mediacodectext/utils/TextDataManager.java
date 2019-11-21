@@ -15,10 +15,34 @@ public class TextDataManager {
 
     private static ArrayList<DataInfo> dataInfos = new ArrayList<>();
 
+    public static String getTextVideo() {
+        return dataInfos.get(0).LocalPath;
+    }
+
+    public static String getTextVideo4K() {
+        return dataInfos.get(1).LocalPath;
+    }
+
+    public static String getTextVideoRotation() {
+        return dataInfos.get(2).LocalPath;
+    }
+
     public static void initAsyn(final ICallBack callBack) {
         DataInfo dataInfo = new DataInfo();
         dataInfo.id = 0;
         dataInfo.AssetPath = "textVideo.mp4";
+        dataInfo.LocalPath = FileUtils.getSDPath() + "MediaCodecText" + File.separator + dataInfo.AssetPath;
+        dataInfos.add(dataInfo);
+
+        dataInfo = new DataInfo();
+        dataInfo.id = 1;
+        dataInfo.AssetPath = "textVideo_4k.mp4";
+        dataInfo.LocalPath = FileUtils.getSDPath() + "MediaCodecText" + File.separator + dataInfo.AssetPath;
+        dataInfos.add(dataInfo);
+
+        dataInfo = new DataInfo();
+        dataInfo.id = 2;
+        dataInfo.AssetPath = "textVideo_rotation.mp4";
         dataInfo.LocalPath = FileUtils.getSDPath() + "MediaCodecText" + File.separator + dataInfo.AssetPath;
         dataInfos.add(dataInfo);
 
