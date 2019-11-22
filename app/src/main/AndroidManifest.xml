@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.VideoInfoActivity" />
+        <activity android:name=".activity.ReEncodeActivity" />
     </application>
 
 </manifest>
