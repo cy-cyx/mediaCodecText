@@ -17,14 +17,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static android.media.MediaFormat.KEY_COLOR_FORMAT;
 import static android.media.MediaFormat.KEY_DURATION;
 import static android.media.MediaFormat.KEY_FRAME_RATE;
-import static android.media.MediaFormat.KEY_HEIGHT;
 import static android.media.MediaFormat.KEY_I_FRAME_INTERVAL;
 import static android.media.MediaFormat.KEY_LEVEL;
 import static android.media.MediaFormat.KEY_MIME;
 import static android.media.MediaFormat.KEY_ROTATION;
-import static android.media.MediaFormat.KEY_WIDTH;
 
 /**
  * create by cy
@@ -75,10 +74,10 @@ public class ReEncodeActivity extends AppCompatActivity {
 
                 // 读出信息
                 videoMime = mime;
-                if (trackFormat.containsKey(KEY_WIDTH))
-                    width = trackFormat.getInteger(KEY_WIDTH);
-                if (trackFormat.containsKey(KEY_HEIGHT))
-                    height = trackFormat.getInteger(KEY_HEIGHT);
+//                if (trackFormat.containsKey(KEY_WIDTH))
+//                    width = trackFormat.getInteger(KEY_WIDTH);
+//                if (trackFormat.containsKey(KEY_HEIGHT))
+//                    height = trackFormat.getInteger(KEY_HEIGHT);
                 if (trackFormat.containsKey(KEY_ROTATION))
                     rotation = trackFormat.getInteger(KEY_ROTATION);
                 if (trackFormat.containsKey(KEY_DURATION))
@@ -112,6 +111,8 @@ public class ReEncodeActivity extends AppCompatActivity {
         boolean encodeInputDone = false;
         boolean encodeOutputDone = false;
 
+        int colorFormat = 0;
+
         try {
             while (true) {
                 if (!decodeInputDone) {
@@ -144,6 +145,16 @@ public class ReEncodeActivity extends AppCompatActivity {
                         // 呼叫超时
                     } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                         // 输出格式已更改
+                        MediaFormat mediaFormat = mDecodeMediaCodec.getOutputFormat();
+                        colorFormat = mediaFormat.getInteger(KEY_COLOR_FORMAT);
+                        width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
+                        if (mediaFormat.containsKey("crop-left") && mediaFormat.containsKey("crop-right")) {
+                            width = mediaFormat.getInteger("crop-right") + 1 - mediaFormat.getInteger("crop-left");
+                        }
+                        height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
+                        if (mediaFormat.containsKey("crop-top") && mediaFormat.containsKey("crop-bottom")) {
+                            height = mediaFormat.getInteger("crop-bottom") + 1 - mediaFormat.getInteger("crop-top");
+                        }
                     } else if (decoderStatus < 0) {
                         // 没有可用输出
                     } else {
@@ -165,11 +176,11 @@ public class ReEncodeActivity extends AppCompatActivity {
                 }
 
                 if (hasOutPut && !encodeInputDone) {
-                    if (mEncodeMediaCodec == null) {
+                    if (mEncodeMediaCodec == null && width != 0 && height != 0) {
                         try {
                             mEncodeMediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC);
                             MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
-                            format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
+                            format.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
                             format.setLong(KEY_DURATION, duration);
                             format.setInteger(KEY_FRAME_RATE, 20);
                             format.setInteger(KEY_I_FRAME_INTERVAL, 0);
@@ -186,7 +197,7 @@ public class ReEncodeActivity extends AppCompatActivity {
                     int inputBufIndex = mEncodeMediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
                     if (inputBufIndex >= 0) {
                         ByteBuffer inputBuffer = mEncodeMediaCodec.getInputBuffer(inputBufIndex);
-                        if (!decodeOutputDone) {
+                        if (!decodeOutputDone && mEncodeMediaCodec != null) {
                             // 放进入解码数据
                             inputBuffer.put(decodeData);
                             mEncodeMediaCodec.queueInputBuffer(inputBufIndex, 0, decodeData.length, decodePresentationTimeUs, 0);
