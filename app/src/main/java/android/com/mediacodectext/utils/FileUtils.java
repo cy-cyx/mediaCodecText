@@ -27,6 +27,10 @@ public class FileUtils {
         return sdPath;
     }
 
+    public static String getNewMp4Path() {
+        return getSDPath() + "MediaCodecText" + File.separator + System.currentTimeMillis() + ".mp4";
+    }
+
     /**
      * 将Asset写到SD卡
      */
