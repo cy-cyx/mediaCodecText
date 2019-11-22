@@ -39,7 +39,7 @@ public class VideoInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         try {
             MediaExtractor mediaExtractor = new MediaExtractor();
-            mediaExtractor.setDataSource(TextDataManager.getTextVideoRotation());
+            mediaExtractor.setDataSource(TextDataManager.getTextVideo());
             int trackCount = mediaExtractor.getTrackCount();
             for (int curTrack = 0; curTrack < trackCount; curTrack++) {
                 MediaFormat trackFormat = mediaExtractor.getTrackFormat(curTrack);

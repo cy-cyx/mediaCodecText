@@ -9,6 +9,7 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -147,7 +148,7 @@ public class ReEncodeActivity extends AppCompatActivity {
                         // 没有可用输出
                     } else {
                         ByteBuffer outputBuffer = mDecodeMediaCodec.getOutputBuffer(decoderStatus);
-                        outputBuffer.position(decodeOutputInfo.offset); // 50000
+                        outputBuffer.position(decodeOutputInfo.offset);
                         outputBuffer.limit(decodeOutputInfo.offset + decodeOutputInfo.size);
                         decodeData = new byte[decodeOutputInfo.size];
                         outputBuffer.get(decodeData);
@@ -170,7 +171,7 @@ public class ReEncodeActivity extends AppCompatActivity {
                             MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
                             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
                             format.setLong(KEY_DURATION, duration);
-                            format.setInteger(KEY_FRAME_RATE, 24);
+                            format.setInteger(KEY_FRAME_RATE, 20);
                             format.setInteger(KEY_I_FRAME_INTERVAL, 0);
                             format.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 30);
                             format.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR);
@@ -197,9 +198,10 @@ public class ReEncodeActivity extends AppCompatActivity {
                         }
                     }
                 }
-                
+
                 if (mMediaMuxer == null)
                     mMediaMuxer = new MediaMuxer(FileUtils.getNewMp4Path(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+
 
                 MediaCodec.BufferInfo encodeOutputInfo = new MediaCodec.BufferInfo();
                 if (mEncodeMediaCodec != null && !encodeOutputDone) {
@@ -217,6 +219,12 @@ public class ReEncodeActivity extends AppCompatActivity {
 
                         if ((decodeOutputInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
                             Log.d("xx", "编码完成");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(ReEncodeActivity.this, "编解码成功", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                             encodeOutputDone = true;
                             break;
                         }
