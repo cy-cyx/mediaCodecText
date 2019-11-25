@@ -58,7 +58,7 @@ public class ReEncodeActivity extends AppCompatActivity {
     private void decodeAndReEncode() {
         MediaExtractor mediaExtractor = new MediaExtractor();
         try {
-            mediaExtractor.setDataSource(TextDataManager.getTextVideo());
+            mediaExtractor.setDataSource(TextDataManager.getTextVideoRotation());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,10 +74,6 @@ public class ReEncodeActivity extends AppCompatActivity {
 
                 // 读出信息
                 videoMime = mime;
-//                if (trackFormat.containsKey(KEY_WIDTH))
-//                    width = trackFormat.getInteger(KEY_WIDTH);
-//                if (trackFormat.containsKey(KEY_HEIGHT))
-//                    height = trackFormat.getInteger(KEY_HEIGHT);
                 if (trackFormat.containsKey(KEY_ROTATION))
                     rotation = trackFormat.getInteger(KEY_ROTATION);
                 if (trackFormat.containsKey(KEY_DURATION))
@@ -146,7 +142,7 @@ public class ReEncodeActivity extends AppCompatActivity {
                     } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                         // 输出格式已更改
                         MediaFormat mediaFormat = mDecodeMediaCodec.getOutputFormat();
-                        colorFormat = mediaFormat.getInteger(KEY_COLOR_FORMAT);
+                        colorFormat = mediaFormat.getInteger(KEY_COLOR_FORMAT);  // 获得解码的颜色的格式，用于编码
                         width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
                         if (mediaFormat.containsKey("crop-left") && mediaFormat.containsKey("crop-right")) {
                             width = mediaFormat.getInteger("crop-right") + 1 - mediaFormat.getInteger("crop-left");
@@ -182,10 +178,10 @@ public class ReEncodeActivity extends AppCompatActivity {
                             MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
                             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
                             format.setLong(KEY_DURATION, duration);
-                            format.setInteger(KEY_FRAME_RATE, 20);
+                            format.setInteger(KEY_FRAME_RATE, 20); // 帧率在这里设置并没有办法改变真实输出帧率
                             format.setInteger(KEY_I_FRAME_INTERVAL, 0);
                             format.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 30);
-                            format.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR);
+                            format.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR); // 可动态码率或者固定码率
                             format.setInteger(KEY_ROTATION, rotation);
                             format.setInteger(KEY_LEVEL, 6);
                             mEncodeMediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -222,6 +218,7 @@ public class ReEncodeActivity extends AppCompatActivity {
                     } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                         // 输出格式已更改
                         muxerTrack = mMediaMuxer.addTrack(mEncodeMediaCodec.getOutputFormat());
+                        mMediaMuxer.setOrientationHint(rotation);  // 设置输出的角度
                         mMediaMuxer.start();
 
                     } else if (decoderStatus < 0) {

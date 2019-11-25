@@ -28,6 +28,7 @@ public class TextDataManager {
     }
 
     public static void initAsyn(final ICallBack callBack) {
+        // todo 视频资源不上传git，被墙限制
         DataInfo dataInfo = new DataInfo();
         dataInfo.id = 0;
         dataInfo.AssetPath = "textVideo.mp4";
