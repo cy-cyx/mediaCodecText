@@ -58,7 +58,7 @@ public class ReEncodeActivity extends AppCompatActivity {
     private void decodeAndReEncode() {
         MediaExtractor mediaExtractor = new MediaExtractor();
         try {
-            mediaExtractor.setDataSource(TextDataManager.getTextVideoRotation());
+            mediaExtractor.setDataSource(TextDataManager.getTextVideo());
         } catch (IOException e) {
             e.printStackTrace();
         }
